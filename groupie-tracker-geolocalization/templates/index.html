@@ -1,0 +1,169 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Geo</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        input {
+            width: 96%;
+            margin-left: 10px;
+        }
+
+        #notifiy {
+            font-size: 20px;
+            color: pink;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 40%;
+            width: 250px;
+            height: 70px;
+            background: #000;
+            z-index: 2;
+            display: none;
+        }
+
+        .btn-geo {
+            padding: 2px 12px;
+            background: #000;
+            color: yellow;
+        }
+
+        .btn-geo:hover {
+            cursor: pointer;
+        }
+
+        .wrapper {
+            margin-bottom: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='notifiy'></div>
+    <div class="wrapper">
+        <input list="artistId" id="artistChoiced" type="text" required>
+        <datalist id="artistId">
+            {{range .}}
+            <option value="{{.Name}}"></option>
+            {{end}}
+        </datalist>
+        <button class="btn-geo" onclick="sendDataBackend()">Go </button>
+    </div>
+    <div id='myMap' style='width: 100vw; height: 97vh;'></div>
+    <br>
+</body>
+
+<script type='text/javascript'>
+
+    function sendDataBackend() {
+
+        let option = document.getElementById("artistChoiced").value;
+
+        if (option != null || option != undefined || option != "") {
+            fetch('http://localhost:6969/map', {
+                method: 'post',
+                body: option,
+            })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    showMapCity(data)
+                });
+        }
+    }
+
+    function showMapCity(cities) {
+
+        let notify = document.getElementById("notifiy");
+        let art = document.getElementById("artistChoiced");
+        console.log(art.value, typeof (art.value))
+
+        if (art.value !== "") {
+            notify.style.display = "none"
+            if (cities != null) {
+                notify.style.display = "none"
+                var map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
+                    center: new Microsoft.Maps.Location(47.624527, -122.355255),
+                    zoom: 1
+                });
+
+                Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
+                    var searchManager = new Microsoft.Maps.Search.SearchManager(map);
+
+                    for (let i = 0; i < cities.length; i++) {
+                        var requestOptions = {
+                            bounds: map.getBounds(),
+                            where: `${cities[i].Name}`,
+                            callback: function (answer, userData) {
+
+                                map.setView({ bounds: answer.results[0].bestView, padding: 100 });
+                                map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+                            }
+
+                        }
+
+                        searchManager.geocode(requestOptions);
+                    }
+                });
+            } else {
+                notify.style.display = "block"
+                var h3 = document.createElement("h3");
+                h3.innerHTML = "artist not find"
+                notify.appendChild(h3)
+                console.log("not find")
+                return
+            }
+
+        } else {
+            // notify.style.display = "block"
+            // var h3 = document.createElement("h3");
+            // h3.innerHTML = "artist eq zero"
+            // notify.appendChild(h3)
+            console.log("empty")
+            return
+        }
+    }
+
+    function loadMapScenario() {
+        var map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
+            center: new Microsoft.Maps.Location(47.624527, -122.355255),
+            zoom: 4
+        });
+
+        Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
+            var searchManager = new Microsoft.Maps.Search.SearchManager(map);
+
+            for (let i = 0; i < cities.length; i++) {
+                var requestOptions = {
+                    bounds: map.getBounds(),
+                    where: Tokio,
+                    callback: function (answer, userData) {
+                        map.setView({ bounds: answer.results[0].bestView, padding: 100 });
+                        map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+                    }
+                }
+                searchManager.geocode(requestOptions);
+            }
+        });
+    }
+</script>
+<script type='text/javascript'
+    src='https://www.bing.com/api/maps/mapcontrol?key=AnSKQmEZC2RbKmnr3UsEqmxo7yDmN4ATG1B3bL9mG9g7j_BJV4od1Dex2bdJL7Wf&callback=loadMapScenario'
+    async defer></script>
+
+</html>
+
+{{end}}

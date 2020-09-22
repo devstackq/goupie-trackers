@@ -1,0 +1,96 @@
+{{define "index"}}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="public/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Groupie Tracker Filter</title>
+</head>
+
+<body>
+    <form action="/filter" meethod="post">
+        <div class="wrapper-filter">
+
+            <h2>Filter setting:</h2>
+            <div>
+                <h5>By Members:</h5>
+                <label>
+                    <input type="checkbox" class="radio" value="1" name="members" />1</label>
+                <label>
+                    <input type="checkbox" class="radio" value="2" name="members" />2</label>
+                <label>
+                    <input type="checkbox" class="radio" value="3" name="members" />3</label>
+                <label>
+                    <input type="checkbox" class="radio" value="4" name="members" />4</label>
+                <label>
+                    <input type="checkbox" class="radio" value="5" name="members" />5</label>
+                <label>
+                    <input type="checkbox" class="radio" value="6" name="members" />6</label>
+                <label>
+                    <input type="checkbox" class="radio" value="7" name="members" />7</label>
+                <label>
+                    <input type="checkbox" class="radio" value="8" name="members" />8</label>
+            </div>
+
+            <br />
+            <input list="idCity" name="cities">
+            <datalist id="idCity">
+                {{range .LocationsHtml.Index}}
+                {{range .Locations}}
+                <option value="{{.}}"></option>
+                {{end}}
+                {{end}}
+            </datalist>
+            <br />
+
+            <label for="creation">By creation:</label>
+            <input type="checkbox" id="creation" value="creation" name="input">
+            <br />
+
+            <label for="from">From:</label>
+            <input type="range" id="from" name="from" min="1970" max="2020" value="1970"
+                oninput="amount.value=from.value">
+            <output name="amount" id="amount" for="from">1970</output>
+            <br />
+            <label for="to">To:</label>
+            <input type="range" id="to" name="to" min="1971" max="2020" value="2020" oninput="toamount.value=to.value">
+            <output name="toamount" id="toamount" for="to">2020</output>
+            <br />
+            <label for="albumdate">By first album:</label>
+            <input type="checkbox" id="albumdate" value="albumdate" name="input">
+
+            <br />
+            <input type="submit" value="Go">
+        </div>
+    </form>
+
+    <div class="container artists-container">
+        <div class="row container-row">
+            {{range .Artist}}
+            <div class="col-3 ddd">
+                <form method="POST" action="/artist" class="form-wrapper">
+                    <input type="hidden" name="uid" value="{{ .ID }}" />
+                    <div class="container">
+                        <img class="img-artist " src="{{.Image}}" alt="{{.Name}}">
+                        <h2 class="name-artist"> {{.Name}} </h2>
+
+                        <input class="btn btn-primary" type="submit" value="see more" />
+                    </div>
+                </form>
+                {{/* <a href="/artist/{{.Name}}"> {{.Name}} </a> */}}
+
+            </div>
+            {{end}}
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
+{{end}}
